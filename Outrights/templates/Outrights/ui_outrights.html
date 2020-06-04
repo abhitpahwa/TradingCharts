@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+    <title>Outrights</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js">
+    </script>
+    {% include 'Outrights/reset.html' %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Outrights/style.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Arbutus Slab' rel='stylesheet'>
+</head>
+<body>
+<div class="navbar">
+    <a class="active" href="{% url 'Outrights:Outrights_form' %}">Outrights</a>
+    <a href="{% url 'Outrights:Spreads_form' %}">Spreads</a>
+    <a href="{% url 'Outrights:Flys_form' %}">Flys</a>
+    <a href="{% url 'Outrights:Customs_form' %}">Customs</a>
+    <a href="{% url 'Outrights:index_page' %}">Back to menu</a>
+</div>
+<form action="" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    {{ field.label_tag }}<label>&nbsp;&nbsp;&nbsp;</label>{{ field }}<br><br>
+    {% endfor %}
+    <input type="submit" value=" View Chart ">
+    <input type="button" value=" Reset " name="clear" onclick="ClearForm(this.form);FixDpi();"><br><br>
+    {% if error %}
+    <script>alert("{{ error }}")</script>
+    {% endif %}
+    <div id="chart-container">
+        <canvas id="chart"></canvas>
+        {% ifequal method "get" %}
+            {% include 'Outrights/fix_dpi.html' %}
+        {% else %}
+            {% if error %}
+                {% include 'Outrights/fix_dpi.html' %}
+            {%  else %}
+                {% include 'Outrights/result.html' %}
+            {% endif %}
+        {% endifequal %}
+    </div>
+</form>
+</body>
+</html>

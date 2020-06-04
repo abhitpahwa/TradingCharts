@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+    <title>Index</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Outrights/index.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Barriecito' rel='stylesheet'>
+</head>
+<body>
+    <div class="row">
+        <a href="{% url 'Outrights:'|add:Options.0|add:'_form' %}">
+            <div class="column" style="background-color:#FFA07A" >{{ Options.0 }}</div>
+        </a>
+        <a href="{% url 'Outrights:'|add:Options.1|add:'_form' %}">
+            <div class="column" style="background-color:#FFD700">{{ Options.1 }}</div>
+        </a>
+    </div>
+    <div class="row">
+        <a href="{% url 'Outrights:'|add:Options.2|add:'_form' %}">
+            <div class="column" style="background-color:#00FF7F">{{ Options.2 }}</div>
+        </a>
+        <a href="{% url 'Outrights:'|add:Options.3|add:'_form' %}">
+            <div class="column" style="background-color:#40E0D0">{{ Options.3 }}</div>
+        </a>
+    </div>
+</body>
+</html>

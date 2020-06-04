@@ -1,0 +1,48 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+
+.navbar{
+    width:100%;
+    background-color:#2F4F4F;
+    overflow:auto;
+}
+
+.navbar a{
+    float:left;
+    padding:2vh;
+    color:white;
+    text-decoration:none;
+    font-size:3vh;
+    width:20%;
+    text-align:center;
+}
+
+.navbar a:hover {
+  background-color: #708090;
+}
+
+.navbar a.active {
+  background-color: #0000FF;
+}
+
+form{
+    padding:2vh;
+    text-align:center;
+    font-size:2vh;
+    font-family:'Arbutus Slab';
+}
+
+#chart {
+    padding:0;
+    border:1px solid #d3d3d3;
+    height:54vh;
+    width:100%;
+}
+
+input[type=button],input[type=submit]{
+    border-radius: 2px;
+    font-family:'Arbutus Slab';
+}

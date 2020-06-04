@@ -1,0 +1,35 @@
+<script>
+    function ClearForm(myform){
+        var elements=myform.elements;
+        myform.reset();
+        for(i=0;i<elements.length;i++){
+            var ele=elements[i].type.toLowerCase();
+            if (ele=="text" || ele=="number")
+                elements[i].value="";
+            else if (ele=="select-one")
+                elements[i].selectedIndex=0;
+        }
+    }
+    function FixDpi(){
+        var element = document.getElementById("chart");
+        element.parentNode.removeChild(element);
+        var p = document.getElementById("chart-container");
+        var newElement = document.createElement("CANVAS");
+        newElement.setAttribute('id', "chart");
+        p.appendChild(newElement);
+        let dpi = window.devicePixelRatio;
+        let canvas = document.getElementById('chart');
+        let ctx = canvas.getContext('2d');
+        function fix_dpi() {
+            let style_height = +getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
+            let style_width = +getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
+            canvas.setAttribute('height', style_height * dpi);
+            canvas.setAttribute('width', style_width * dpi);
+        };
+        fix_dpi();
+        console.log("h");
+        ctx.font = "3vh Arial";
+        ctx.textAlign="center";
+        ctx.fillText("Chart will be displayed here.",canvas.width/2,canvas.height/2);
+    }
+</script>

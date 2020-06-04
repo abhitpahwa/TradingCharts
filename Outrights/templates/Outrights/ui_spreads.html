@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spreads</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js">
+    </script>
+    {% include 'Outrights/reset.html' %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Outrights/style.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Arbutus Slab' rel='stylesheet'>
+</head>
+<body>
+<div class="navbar">
+    <a href="{% url 'Outrights:Outrights_form' %}">Outrights</a>
+    <a class="active" href="{% url 'Outrights:Spreads_form' %}">Spreads</a>
+    <a href="{% url 'Outrights:Flys_form' %}">Flys</a>
+    <a href="{% url 'Outrights:Customs_form' %}">Customs</a>
+    <a href="{% url 'Outrights:index_page' %}">Back to menu</a>
+</div>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.outright1.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright1 }}&nbsp;&nbsp;&nbsp;{{ form.outright2 }}<br><br>
+    {{ form.outright3.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright3 }}&nbsp;&nbsp;&nbsp;{{ form.outright4 }}<br><br>
+    {{ form.outright5.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright5 }}&nbsp;&nbsp;&nbsp;{{ form.outright6 }}<br><br>
+    {{ form.outright7.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright7 }}&nbsp;&nbsp;&nbsp;{{ form.outright8 }}<br><br>
+    {{ form.years.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.years }}<br><br>
+    <input type="submit" value=" View Chart ">
+    <input type="button" value=" Reset " name="clear" onclick="ClearForm(this.form);FixDpi();"><br><br>
+    {% if error %}
+    <script>alert("{{ error }}")</script>
+    {% endif %}
+    <div id="chart-container">
+        <canvas id="chart"></canvas>
+        {% ifequal method "get" %}
+            {% include 'Outrights/fix_dpi.html' %}
+        {% else %}
+            {% if error %}
+                {% include 'Outrights/fix_dpi.html' %}
+            {%  else %}
+                {% include 'Outrights/result.html' %}
+            {% endif %}
+        {% endifequal %}
+    </div>
+</form>
+</body>
+</html>

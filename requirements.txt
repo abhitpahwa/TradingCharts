@@ -1,0 +1,2 @@
+django~=3.0.6
+django-import-export~=2.1.0

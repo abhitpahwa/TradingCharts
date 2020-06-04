@@ -1,0 +1,15 @@
+<script type="text/javascript">
+    let dpi = window.devicePixelRatio;
+    let canvas = document.getElementById('chart');
+    let ctx = canvas.getContext('2d');
+    function fix_dpi() {
+        let style_height = +getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
+        let style_width = +getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
+        canvas.setAttribute('height', style_height * dpi);
+        canvas.setAttribute('width', style_width * dpi);
+    }
+    fix_dpi();
+    ctx.font = "3vh Arial";
+    ctx.textAlign="center";
+    ctx.fillText("Chart will be displayed here.",canvas.width/2,canvas.height/2);
+</script>

@@ -1,0 +1,52 @@
+<script type="text/javascript">
+    var ctx = document.getElementById("chart");
+    ctx.style.backgroundColor = 'rgba(0,0,0)';
+    var colors=["red","green","blue","brown"]
+    var legendarr=[]
+    {% for l in legend %}
+    legendarr.push("{{ l }}");
+    {% endfor %}
+
+    var index=0
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ x_axis|safe }},
+            datasets: [
+                {% for y in y_axis %}
+                { label: legendarr[index],
+                  data: {{ y|safe }},
+                  pointRadius: 0,
+                  borderColor: colors[index++],
+                  borderWidth : 1,
+                  fill : false
+                },
+                {% endfor %}
+                ]
+              },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                labels: {
+                    fontColor: "white",
+                    fontSize: 12
+                }
+            },
+            scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:false,
+                    fontColor: "white"
+                }
+            }],
+            xAxes: [{
+                ticks: {
+                    autoSkip:false,
+                    fontColor: "white"
+                }
+            }]
+            }
+        }
+    });
+</script>
