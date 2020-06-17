@@ -20,6 +20,7 @@
 </div>
 <form action="" method="post">
     {% csrf_token %}
+    {{ form.market.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.market }}<br><br>
     {{ form.outright1.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright1 }}&nbsp;&nbsp;&nbsp;
     {{ form.outright2 }}&nbsp;&nbsp;&nbsp;{{ form.outright3 }}<br><br>
     {{ form.outright4.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright4 }}&nbsp;&nbsp;&nbsp;

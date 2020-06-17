@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views import generic,View
-from .models import Data
+from .models import Data,SterlingData
 from .forms import OutrightsForm,SpreadsForm,FlysForm,CustomForm
 from django.http import HttpResponse
 from .models import Data
@@ -39,10 +39,13 @@ class Helper():
                 ct += 1
         return x_axis
 
-    def get_valid_data(self,curr_date,num_years):
+    def get_valid_data(self,curr_date,num_years,market):
         expiry_date = self.get_expiry(curr_date)
         start_date = expiry_date - timedelta(days=365.24 * num_years)
-        all_dates = Data.objects.all()
+        if market=="Euribor":
+            all_dates = Data.objects.all()
+        elif market=="Sterling":
+            all_dates = SterlingData.objects.all()
         valid_data = []
         for date_object in all_dates:
             temp_date = datetime.strptime(date_object.date, '%m/%d/%Y').date()
@@ -73,18 +76,19 @@ class OutrightsView(generic.TemplateView):
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
+        market=request.POST["market"]
         for o_r in outrights:
             if o_r!=' ':
-                y_axis.append(self.get_data_for_outright(num_years,o_r))
+                y_axis.append(self.get_data_for_outright(num_years,o_r,market))
                 legend.append(o_r.upper())
         x_axis_len=max([len(i) for i in y_axis])
         x_axis = self.helper.get_xaxis(x_axis_len, num_years)
         return render(request, 'Outrights/ui_outrights.html',
                       {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post'})
 
-    def get_data_for_outright(self,num_years, outright):
+    def get_data_for_outright(self,num_years,outright,market):
         curr_date = self.helper.get_day(outright)
-        valid_data = self.helper.get_valid_data(curr_date, num_years)
+        valid_data = self.helper.get_valid_data(curr_date, num_years,market)
         y_axis = []
         for object in valid_data:
             if getattr(object, outright):
@@ -112,18 +116,19 @@ class SpreadsView(generic.TemplateView):
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
+        market = request.POST["market"]
         for i in range(0,8,2):
             if outrights[i] != ' ' and outrights[i+1] != ' ':
-                y_axis.append(self.get_data_for_spread(num_years, outrights[i], outrights[i+1]))
+                y_axis.append(self.get_data_for_spread(num_years, outrights[i], outrights[i+1],market))
                 legend.append(outrights[i].upper() + "-" + outrights[i+1].upper())
         x_axis_len = max([len(i) for i in y_axis])
         x_axis = self.helper.get_xaxis(x_axis_len, num_years)
         return render(request, 'Outrights/ui_spreads.html',
                       {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post'})
 
-    def get_data_for_spread(self,num_years,outright1,outright2):
+    def get_data_for_spread(self,num_years,outright1,outright2,market):
         curr_date=min(self.helper.get_day(outright1),self.helper.get_day(outright2))
-        valid_data=self.helper.get_valid_data(curr_date,num_years)
+        valid_data=self.helper.get_valid_data(curr_date,num_years,market)
         y_axis=[]
         for object in valid_data:
             if getattr(object, outright1) and getattr(object,outright2):
@@ -153,18 +158,19 @@ class FlysView(generic.TemplateView):
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
+        market = request.POST["market"]
         for i in range(0,12,3):
             if outrights[i] != ' ' and outrights[i+1] != ' ' and outrights[i+2] != ' ':
-                y_axis.append(self.get_data_for_fly(num_years, outrights[i], outrights[i+1], outrights[i+2]))
+                y_axis.append(self.get_data_for_fly(num_years, outrights[i], outrights[i+1], outrights[i+2], market))
                 legend.append(outrights[i].upper() + "-" + outrights[i+1].upper() + "-" + outrights[i+2].upper())
         x_axis_len = max([len(i) for i in y_axis])
         x_axis = self.helper.get_xaxis(x_axis_len, num_years)
         return render(request, 'Outrights/ui_flys.html',
                       {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post'})
 
-    def get_data_for_fly(self,num_years,outright1,outright2,outright3):
+    def get_data_for_fly(self,num_years,outright1,outright2,outright3,market):
         curr_date=min(self.helper.get_day(outright1),self.helper.get_day(outright2),self.helper.get_day(outright3))
-        valid_data=self.helper.get_valid_data(curr_date,num_years)
+        valid_data=self.helper.get_valid_data(curr_date,num_years,market)
         y_axis=[]
         for object in valid_data:
             if getattr(object, outright1) and getattr(object,outright2) and getattr(object,outright3):
@@ -192,11 +198,10 @@ class CustomsView(generic.TemplateView):
             expr = expr.replace("-", "#-")
             if expr[0]!="#":
                 expr = "#+" + expr
-            print(expr)
             outrights = expr.split("#")
             outrights = [i for i in outrights if i != '']
-            print(outrights)
-            y_axis = [self.get_data_for_customs(num_years, outrights)]
+            market = request.POST["market"]
+            y_axis = [self.get_data_for_customs(num_years, outrights,market)]
             x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
             legend = [''.join(outrights).upper()]
             return render(request, 'Outrights/ui_customs.html',
@@ -211,13 +216,13 @@ class CustomsView(generic.TemplateView):
         match=re.match(pattern,expr)
         return [match.group(1),match.group(2),match.group(3)+match.group(4)]
 
-    def get_data_for_customs(self,num_years,outrights):
+    def get_data_for_customs(self,num_years,outrights,market):
         outrights_names=[]
         for o_r in outrights:
             index=o_r.find(next(filter(str.isalpha, o_r)))
             outrights_names.append(o_r[index:])
         curr_date=min([self.helper.get_day(i) for i in outrights_names])
-        valid_data=self.helper.get_valid_data(curr_date,num_years)
+        valid_data=self.helper.get_valid_data(curr_date,num_years,market)
         y_axis=[]
         for object in valid_data:
             check=list(map(lambda x:getattr(object,x),outrights_names))

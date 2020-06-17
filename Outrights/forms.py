@@ -14,7 +14,10 @@ outright_choices=[(' ',''),('h10','H10'),('m10','M10'),('u10','U10'),('z10','Z10
                   ('h19','H19'),('m19','M19'),('u19','U19'),('z19','Z19'),
                   ]
 
+market_choices=[('Euribor','Euribor'),('Sterling','Sterling')]
+
 class OutrightsForm(forms.Form):
+    market = forms.CharField(label="Choose Market",widget=forms.Select(choices=market_choices))
     outright1 = forms.CharField(label="Choose Outright1",widget=forms.Select(choices=outright_choices))
     outright2 = forms.CharField(label="Choose Outright2", widget=forms.Select(choices=outright_choices))
     outright3 = forms.CharField(label="Choose Outright3", widget=forms.Select(choices=outright_choices))
@@ -22,6 +25,7 @@ class OutrightsForm(forms.Form):
     years=forms.IntegerField(max_value=4,min_value=1,required=True)
 
 class SpreadsForm(forms.Form):
+    market = forms.CharField(label="Choose Market", widget=forms.Select(choices=market_choices))
     outright1=forms.CharField(label="Choose Spread1",widget=forms.Select(choices=outright_choices))
     outright2=forms.CharField(widget=forms.Select(choices=outright_choices))
     outright3 = forms.CharField(label="Choose Spread2", widget=forms.Select(choices=outright_choices))
@@ -33,6 +37,7 @@ class SpreadsForm(forms.Form):
     years = forms.IntegerField(max_value=4, min_value=1,required=True)
 
 class FlysForm(forms.Form):
+    market = forms.CharField(label="Choose Market", widget=forms.Select(choices=market_choices))
     outright1 = forms.CharField(label="Choose Fly1", widget=forms.Select(choices=outright_choices))
     outright2 = forms.CharField(widget=forms.Select(choices=outright_choices))
     outright3 = forms.CharField(widget=forms.Select(choices=outright_choices))
@@ -48,16 +53,14 @@ class FlysForm(forms.Form):
     years = forms.IntegerField(max_value=4, min_value=1,required=True)
 
 class CustomForm(forms.Form):
+    market = forms.CharField(label="Choose Market", widget=forms.Select(choices=market_choices))
     expression=forms.CharField(label="Enter the equation to be evaluated",max_length=50)
     years=forms.IntegerField(max_value=4,min_value=1,required=True)
     print("1")
     def clean_expression(self):
-        print("2")
         expr=self.cleaned_data['expression']
         pattern=r"^[+-]{0,1}[\d]*[a-zA-Z][0-9]{2}([+-][\d]*[a-zA-Z][0-9]{2})*$"
         if re.match(pattern,expr):
-            print("3")
             return expr
         else:
-            print("4")
             raise forms.ValidationError("enter a valid expression")
