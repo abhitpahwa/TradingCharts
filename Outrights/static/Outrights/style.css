@@ -33,7 +33,7 @@
   background-color: #708090;
 }
 
-.navbar a.active, .navbar-admin a:active{
+.navbar-admin a.active, .navbar a.active{
   background-color: #0000FF;
 }
 

@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.views import generic,View
-from .models import Data,SterlingData
+from .models import EuriborData,SterlingData,EuroSwissData
 from .forms import OutrightsForm,SpreadsForm,FlysForm,CustomForm
 from django.http import HttpResponse
 from datetime import datetime, timedelta
@@ -55,9 +55,11 @@ class Helper():
         expiry_date = self.get_expiry(curr_date)
         start_date = expiry_date - timedelta(days=365.24 * num_years)
         if market=="Euribor":
-            all_dates = Data.objects.all()
+            all_dates = EuriborData.objects.all()
         elif market=="Sterling":
             all_dates = SterlingData.objects.all()
+        elif market=="EuroSwiss":
+            all_dates = EuroSwissData.objects.all()
         valid_data = []
         for date_object in all_dates:
             temp_date = datetime.strptime(date_object.date, '%m/%d/%Y').date()

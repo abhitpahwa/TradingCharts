@@ -14,7 +14,7 @@ outright_choices=[(' ',''),('h10','H10'),('m10','M10'),('u10','U10'),('z10','Z10
                   ('h19','H19'),('m19','M19'),('u19','U19'),('z19','Z19'),
                   ]
 
-market_choices=[('Euribor','Euribor'),('Sterling','Sterling')]
+market_choices=[('Euribor','Euribor'),('Sterling','Sterling'),('EuroSwiss','EuroSwiss')]
 
 class OutrightsForm(forms.Form):
     market = forms.CharField(label="Choose Market",widget=forms.Select(choices=market_choices))

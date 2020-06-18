@@ -2,13 +2,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest, HttpResponse
 # from _compact import JsonResponse
 from django import forms
-from Outrights.models import Data,SterlingData
+from Outrights.models import EuroSwissData,SterlingData,EuriborData
 from django.template import RequestContext
 import xlrd
 from Outrights.views import Helper
 
 class UploadFileForm(forms.Form):
-    market_choices = [('Euribor', 'Euribor'), ('Sterling', 'Sterling')]
+    market_choices = [('Euribor', 'Euribor'), ('Sterling', 'Sterling'), ('EuroSwiss', 'EuroSwiss')]
     database=forms.CharField(label="Select market",widget=forms.Select(choices=market_choices))
     file = forms.FileField(label="Choose File")
 
@@ -24,9 +24,11 @@ def upload(request):
                 sheet=book.sheet_by_index(0)
                 rows=sheet.nrows
                 if request.POST['database']=="Euribor":
-                    model=Data
+                    model=EuriborData
                 elif request.POST['database']=="Sterling":
                     model=SterlingData
+                elif request.POST['database']=="EuroSwiss":
+                    model=EuroSwissData
                 model.objects.all().delete()
                 for r in range(1,rows):
                     record=model()
@@ -114,7 +116,7 @@ def upload(request):
                     record.z19 = None if sheet.cell_value(r, c)=='' else sheet.cell_value(r,c)
                     record.save()
                 return render(request,'AdminLogin/upload_form.html',context={'form':form,'admin':check_admin,'confirm':True})
-            except:
+            except Exception as e:
                 return render(request,'AdminLogin/upload_form.html',context={'form':form,'admin':check_admin,'error':True})
         else:
             return HttpResponseBadRequest()
