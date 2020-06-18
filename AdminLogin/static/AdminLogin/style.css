@@ -33,25 +33,27 @@
   background-color: #708090;
 }
 
-.navbar a.active, .navbar-admin a:active{
+.navbar-admin a.active {
   background-color: #0000FF;
 }
 
-form{
-    padding:2vh;
-    text-align:center;
-    font-size:2vh;
-    font-family:'Arbutus Slab';
-}
-
-#chart {
-    padding:0;
-    border:1px solid #d3d3d3;
-    height:51vh;
-    width:100%;
-}
-
-input[type=button],input[type=submit]{
+#btn{
     border-radius: 2px;
     font-family:'Arbutus Slab';
+    padding:1px;
+    text-align:center;
+    margin-left:25%;
 }
+
+.form-class{
+    padding:2vh;
+    text-align:left;
+    font-size:2vh;
+    font-family:'Arbutus Slab';
+    margin-left: 35%;
+    margin-right: 35%;
+    margin-top:35vh;
+}
+
+
+

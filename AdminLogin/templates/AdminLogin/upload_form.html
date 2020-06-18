@@ -1,0 +1,38 @@
+<html>
+<head>
+    <title>Admin</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'AdminLogin/style.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Arbutus Slab' rel='stylesheet'>
+</head>
+<body>
+    {% if form.errors %}
+        <p style="color: red;">
+            Please correct the error{{ form.errors|pluralize }} below.
+        </p>
+    {% endif %}
+    {% if error %}
+        <script>alert("Error uploading")</script>
+    {% endif %}
+    {% if confirm %}
+        <script>alert("File Uploaded")</script>
+    {% endif %}
+    {% if admin %}
+    <div class="navbar-admin">
+        <a href="{% url 'Outrights:Outrights_form' %}">Outrights</a>
+        <a href="{% url 'Outrights:Spreads_form' %}">Spreads</a>
+        <a href="{% url 'Outrights:Flys_form' %}">Flys</a>
+        <a  href="{% url 'Outrights:Customs_form' %}">Customs</a>
+        <a href="{% url 'Outrights:index_page' %}">Back to menu</a>
+        <a class="active" href="/adminlogin">Admin</a>
+        <a href="{% url 'Outrights:logout' %}">Logout</a>
+    </div>
+    {% endif %}
+    <form class ="form-class" action="" enctype="multipart/form-data"  method="post">
+        {{ form.database.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.database }}<br><br>
+        {{ form.file.label_tag }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ form.file }}<br>
+        {% csrf_token %}
+        <br><input id="btn" type="submit" value="Upload data">
+    </form>
+</body>
+</html>

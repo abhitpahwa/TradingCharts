@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        .center {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          margin-top: 40vh;
+          width: 70vh;
+        }
+    </style>
+</head>
+<body>
+{% load static %}
+<img class="center" alt="axxela logo" src="{% static 'Login/axxela_logo.png' %} "><br><br>
+<div class="col s12 m6 offset-m3 center-align">
+    <a class="oauth-container btn darken-4 white black-text" href="{% url 'social:begin' 'google-oauth2' %}" style="text-transform:none">
+        <div class="left">
+            <img width="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+        </div>
+        Login with Google
+    </a>
+</div>
+
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+<!--<a href="{% url 'social:begin' 'google-oauth2' %}">Login</a>-->
+</body>
+</html>

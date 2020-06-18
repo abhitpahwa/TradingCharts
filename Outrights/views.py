@@ -1,14 +1,26 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views import generic,View
 from .models import Data,SterlingData
 from .forms import OutrightsForm,SpreadsForm,FlysForm,CustomForm
 from django.http import HttpResponse
-from .models import Data
 from datetime import datetime, timedelta
 import calendar
 import re
+from django.contrib.auth import logout as auth_logout
+
+def logout(request):
+    auth_logout(request)
+    return redirect("/")
 
 class Helper():
+    def isadmin(self,request):
+        if request.user.get_username()=="abhit.pahwa":
+            return True
+        return False
+    def check_login(self,request):
+        if not request.user.is_authenticated or request.user.is_anonymous:
+            return False
+        return True
     def get_day(self,outright):
         month = 0
         year = 0
@@ -59,20 +71,33 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return ["Outrights","Spreads","Flys","Customs"]
 
+def display_index(request):
+    helper=Helper()
+    if not helper.check_login(request):
+        return redirect("/")
+    else:
+        return IndexView.as_view()(request)
+
 
 class OutrightsView(generic.TemplateView):
     helper=Helper()
     def get(self, request):
+        if not self.helper.check_login(request): 
+            return redirect("/") 
         form = OutrightsForm()
-        return render(request, 'Outrights/ui_outrights.html', {'form': form,'method':'get'})
+        check_admin=self.helper.isadmin(request)
+        return render(request, 'Outrights/ui_outrights.html', {'form': form,'method':'get','admin':check_admin})
     def post(self,request):
+        if not self.helper.check_login(request): 
+            return redirect("/")
         form = OutrightsForm(request.POST)
+        check_admin = self.helper.isadmin(request)
         outrights=[]
         for i in range(4):
             outrights.append(request.POST["outright"+str(i+1)])
         if self.CheckNull(outrights):
             return render(request, 'Outrights/ui_outrights.html',
-                          {'form': form,'error':"Enter at least one outright"})
+                          {'form': form,'error':"Enter at least one outright",'admin':check_admin})
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
@@ -83,8 +108,9 @@ class OutrightsView(generic.TemplateView):
                 legend.append(o_r.upper())
         x_axis_len=max([len(i) for i in y_axis])
         x_axis = self.helper.get_xaxis(x_axis_len, num_years)
+
         return render(request, 'Outrights/ui_outrights.html',
-                      {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post'})
+                      {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post','admin':check_admin})
 
     def get_data_for_outright(self,num_years,outright,market):
         curr_date = self.helper.get_day(outright)
@@ -103,16 +129,22 @@ class OutrightsView(generic.TemplateView):
 class SpreadsView(generic.TemplateView):
     helper=Helper()
     def get(self, request):
+        if not self.helper.check_login(request): 
+            return redirect("/")
         form = SpreadsForm()
-        return render(request, 'Outrights/ui_spreads.html', {'form': form,'method':'get'})
+        check_admin = self.helper.isadmin(request)
+        return render(request, 'Outrights/ui_spreads.html', {'form': form,'method':'get','admin':check_admin})
     def post(self,request):
+        if not self.helper.check_login(request): 
+            return redirect("/")
         form = SpreadsForm(request.POST)
+        check_admin = self.helper.isadmin(request)
         outrights = []
         for i in range(8):
             outrights.append(request.POST["outright" + str(i + 1)])
         if self.CheckNull(outrights):
             return render(request, 'Outrights/ui_spreads.html',
-                          {'form': form,'error':"Enter at least one spread"})
+                          {'form': form,'error':"Enter at least one spread",'admin':check_admin})
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
@@ -123,8 +155,9 @@ class SpreadsView(generic.TemplateView):
                 legend.append(outrights[i].upper() + "-" + outrights[i+1].upper())
         x_axis_len = max([len(i) for i in y_axis])
         x_axis = self.helper.get_xaxis(x_axis_len, num_years)
+
         return render(request, 'Outrights/ui_spreads.html',
-                      {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post'})
+                      {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post','admin':check_admin})
 
     def get_data_for_spread(self,num_years,outright1,outright2,market):
         curr_date=min(self.helper.get_day(outright1),self.helper.get_day(outright2))
@@ -145,16 +178,22 @@ class SpreadsView(generic.TemplateView):
 class FlysView(generic.TemplateView):
     helper=Helper()
     def get(self,request):
+        if not self.helper.check_login(request): 
+            return redirect("/")
         form = FlysForm()
-        return render(request, 'Outrights/ui_flys.html', {'form': form,'method':'get'})
+        check_admin = self.helper.isadmin(request)
+        return render(request, 'Outrights/ui_flys.html', {'form': form,'method':'get','admin':check_admin})
     def post(self,request):
+        if not self.helper.check_login(request): 
+            return redirect("/")
         form = FlysForm(request.POST)
         outrights = []
         for i in range(12):
             outrights.append(request.POST["outright" + str(i + 1)])
+        check_admin = self.helper.isadmin(request)
         if self.CheckNull(outrights):
             return render(request, 'Outrights/ui_flys.html',
-                          {'form': form,'error':"Enter at least one fly"})
+                          {'form': form,'error':"Enter at least one fly",'admin':check_admin})
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
@@ -165,8 +204,9 @@ class FlysView(generic.TemplateView):
                 legend.append(outrights[i].upper() + "-" + outrights[i+1].upper() + "-" + outrights[i+2].upper())
         x_axis_len = max([len(i) for i in y_axis])
         x_axis = self.helper.get_xaxis(x_axis_len, num_years)
+
         return render(request, 'Outrights/ui_flys.html',
-                      {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post'})
+                      {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post','admin':check_admin})
 
     def get_data_for_fly(self,num_years,outright1,outright2,outright3,market):
         curr_date=min(self.helper.get_day(outright1),self.helper.get_day(outright2),self.helper.get_day(outright3))
@@ -187,9 +227,14 @@ class FlysView(generic.TemplateView):
 class CustomsView(generic.TemplateView):
     helper=Helper()
     def get(self,request):
+        if not self.helper.check_login(request): 
+            return redirect("/")
         form = CustomForm()
-        return render(request, 'Outrights/ui_customs.html', {'form': form,'method':'get'})
+        check_admin = self.helper.isadmin(request)
+        return render(request, 'Outrights/ui_customs.html', {'form': form,'method':'get','admin':check_admin})
     def post(self,request):
+        if not self.helper.check_login(request): 
+            return redirect("/")
         form = CustomForm(request.POST)
         if form.is_valid():
             expr = request.POST['expression'].lower()
@@ -204,12 +249,14 @@ class CustomsView(generic.TemplateView):
             y_axis = [self.get_data_for_customs(num_years, outrights,market)]
             x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
             legend = [''.join(outrights).upper()]
+            check_admin = self.helper.isadmin(request)
             return render(request, 'Outrights/ui_customs.html',
-                          {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post'})
+                          {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post','admin':check_admin})
         else:
             form=CustomForm()
+            check_admin = self.helper.isadmin(request)
             return render(request, 'Outrights/ui_customs.html',
-                          {'form': form,'error':"Please enter a valid expression"})
+                          {'form': form,'error':"Please enter a valid expression",'admin':check_admin})
 
     def evaluate(self,expr):
         pattern=r"^([+-])([\d]*)([a-zA-Z])([\d]{2})"

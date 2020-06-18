@@ -11,13 +11,26 @@
     <link href='https://fonts.googleapis.com/css?family=Arbutus Slab' rel='stylesheet'>
 </head>
 <body>
+{% if admin %}
+<div class="navbar-admin">
+    <a href="{% url 'Outrights:Outrights_form' %}">Outrights</a>
+    <a href="{% url 'Outrights:Spreads_form' %}">Spreads</a>
+    <a href="{% url 'Outrights:Flys_form' %}">Flys</a>
+    <a class="active"  href="{% url 'Outrights:Customs_form' %}">Customs</a>
+    <a href="{% url 'Outrights:index_page' %}">Back to menu</a>
+    <a href="/adminlogin">Admin</a>
+    <a href="{% url 'Outrights:logout' %}">Logout</a>
+</div>
+{% else %}
 <div class="navbar">
     <a href="{% url 'Outrights:Outrights_form' %}">Outrights</a>
     <a href="{% url 'Outrights:Spreads_form' %}">Spreads</a>
     <a href="{% url 'Outrights:Flys_form' %}">Flys</a>
     <a class="active"  href="{% url 'Outrights:Customs_form' %}">Customs</a>
     <a href="{% url 'Outrights:index_page' %}">Back to menu</a>
+    <a href="{% url 'Outrights:logout' %}">Logout</a>
 </div>
+{% endif %}
 <form id="f" action="" method="post">
     {% csrf_token %}
     {% for field in form %}

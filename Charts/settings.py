@@ -38,7 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'import_export',
-    'Outrights.apps.OutrightsConfig'
+    'Outrights.apps.OutrightsConfig',
+    'Login.apps.LoginConfig',
+    'AdminLogin.apps.AdminloginConfig',
+    'social_django'
 ]
 
 MIDDLEWARE = [
@@ -101,6 +104,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.google.GoogleOAuth2'
+)
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -122,4 +130,25 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT=os.path.join(BASE_DIR,'static')
 
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 11000
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '369884115149-32oj5jijhts62dafqpnmp7809dhmanm8.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'mx1y3ceWMwGpy80gN2-jKafh'
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = ['axxela.in']
+SOCIAL_AUTH_ENABLED_BACKENDS = ('google-oauth2',)
+LOGIN_URL = '/auth/login/google_auth2/'
+LOGIN_REDIRECT_URL='/index'
+LOGOUT_REDIRECT_URL='/'
+SESSION_COOKIE_SAMESITE = None
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
+
+FILE_UPLOAD_HANDLERS=("django_excel.ExcelMemoryFileUploadHandler","django_excel.TemporaryExcelFileUploadHandler")
