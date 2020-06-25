@@ -22,3 +22,18 @@ class SterlingData(CommonModel):
 
 class EuroSwissData(CommonModel):
     pass
+
+class RobustaData(CommonModel):
+    pass
+
+class CocoaData(CommonModel):
+    pass
+
+class WhiteSugarData(CommonModel):
+    pass
+
+class MillingWheatData(CommonModel):
+    pass
+
+class RapeSeedData(CommonModel):
+    pass

@@ -14,7 +14,9 @@ for i in range(180):
     if current_month%12==0:
         current_year+=1
 
-market_choices=[('Euribor','Euribor'),('Sterling','Sterling'),('EuroSwiss','EuroSwiss')]
+market_choices = [('Euribor', 'Euribor'), ('Sterling', 'Sterling'), ('EuroSwiss', 'EuroSwiss'),\
+                      ('Robusta','Robusta'),('Cocoa','Cocoa'),('WhiteSugar','WhiteSugar'),\
+                      ('MillingWheat','MillingWheat'),('RapeSeed','RapeSeed')]
 
 class OutrightsForm(forms.Form):
     market = forms.CharField(label="Choose Market",widget=forms.Select(choices=market_choices))

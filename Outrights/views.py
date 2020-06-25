@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.views import generic,View
-from .models import EuriborData,SterlingData,EuroSwissData
+from .models import *
 from .forms import OutrightsForm,SpreadsForm,FlysForm,CustomForm
 from django.http import HttpResponse
 from datetime import datetime, timedelta
@@ -53,14 +53,12 @@ class Helper():
         return x_axis
 
     def get_valid_data(self,curr_date,num_years,market):
+        market_model = {'Euribor': EuriborData,'Sterling': SterlingData, 'EuroSwiss': EuroSwissData, \
+                          'Robusta': RobustaData, 'Cocoa': CocoaData, 'WhiteSugar': WhiteSugarData, \
+                          'MillingWheat': MillingWheatData, 'RapeSeed': RapeSeedData}
         expiry_date = self.get_expiry(curr_date)
         start_date = expiry_date - timedelta(days=365.24 * num_years)
-        if market=="Euribor":
-            all_dates = EuriborData.objects.all()
-        elif market=="Sterling":
-            all_dates = SterlingData.objects.all()
-        elif market=="EuroSwiss":
-            all_dates = EuroSwissData.objects.all()
+        all_dates=market_model[market].objects.all()
         valid_data = []
         for date_object in all_dates:
             temp_date = datetime.strptime(date_object.date, '%m/%d/%Y').date()
@@ -114,7 +112,7 @@ class OutrightsView(generic.TemplateView):
             if o_r!=' ':
                 not_null_outrights.append(self.helper.get_expiry(self.helper.get_day(o_r)))
                 y_axis.append(self.get_data_for_outright(num_years,o_r,market))
-                legend.append(o_r.upper())
+                legend.append(self.helper.get_outright(o_r).upper())
 
         x_axis_len=(int)(num_years*366)
         zoom=[]
@@ -183,7 +181,7 @@ class SpreadsView(generic.TemplateView):
             if outrights[i] != ' ' and outrights[i+1] != ' ':
                 not_null_outrights.append(min(self.helper.get_expiry(self.helper.get_day(outrights[i])),self.helper.get_expiry(self.helper.get_day(outrights[i+1]))))
                 y_axis.append(self.get_data_for_spread(num_years, outrights[i], outrights[i+1],market))
-                legend.append(outrights[i].upper() + "-" + outrights[i+1].upper())
+                legend.append(self.helper.get_outright(outrights[i]).upper() + "-" + self.helper.get_outright(outrights[i+1]).upper())
         x_axis_len = (int)(num_years * 366)
 
         zoom = []
@@ -251,7 +249,8 @@ class FlysView(generic.TemplateView):
                 not_null_outrights.append(min(self.helper.get_expiry(self.helper.get_day(outrights[i])),\
                                               self.helper.get_expiry(self.helper.get_day(outrights[i+1])),self.helper.get_expiry(self.helper.get_day(outrights[i+2]))))
                 y_axis.append(self.get_data_for_fly(num_years, outrights[i], outrights[i+1], outrights[i+2], market))
-                legend.append(outrights[i].upper() + "-" + outrights[i+1].upper() + "-" + outrights[i+2].upper())
+                legend.append(self.helper.get_outright(outrights[i]).upper() + "-" + self.helper.get_outright(outrights[i+1]).upper()+"-"+\
+                              self.helper.get_outright(outrights[i+2]).upper())
         x_axis_len = (int)(num_years * 366)
 
         zoom = []
@@ -312,10 +311,15 @@ class CustomsView(generic.TemplateView):
             outrights = expr.split("#")
             outrights = [i for i in outrights if i != '']
             market = request.POST["market"]
-            y_axis = [self.get_data_for_customs(num_years, outrights,market)]
+            check_admin = self.helper.isadmin(request)
+            try:
+                y_axis = [self.get_data_for_customs(num_years, outrights,market)]
+            except:
+                return render(request, 'Outrights/ui_customs.html',
+                              {'form': form, 'error': "Please enter a valid expression", 'admin': check_admin})
             # x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
             legend = [''.join(outrights).upper()]
-            check_admin = self.helper.isadmin(request)
+
 
             x_axis_len=num_years*366
             curr_date=self.get_data_for_customs(num_years, outrights,market,True)
