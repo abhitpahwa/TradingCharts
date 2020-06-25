@@ -29,6 +29,7 @@
     </div>
     {% endif %}
     <form class ="form-class" action="" enctype="multipart/form-data"  method="post">
+        {% csrf_token %}
         {{ form.database.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.database }}<br><br>
         {{ form.file.label_tag }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ form.file }}<br>
         {% csrf_token %}

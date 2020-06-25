@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import calendar
 import re
 from django.contrib.auth import logout as auth_logout
+from .forms import outright_choices
 
 def logout(request):
     auth_logout(request)
@@ -24,17 +25,17 @@ class Helper():
     def get_day(self,outright):
         month = 0
         year = 0
-        month_code = ['h', 'm', 'u', 'z']
-        month = 3 * (month_code.index(outright[0]) + 1)
-        year = 2000 + int(outright[1:3])
+        month_code = ['f','g','h','j','k','m','n','q','u','v','x','z']
+        outright_code=self.get_outright(outright)
+        month = month_code.index(outright_code[0]) + 1
+        year = 2000 + int(outright_code[1:3])
         return datetime(year, month, 1).date()
 
     def get_expiry(self,curr_date):
-        cal = calendar.Calendar(0)
-        month = cal.monthdatescalendar(curr_date.year, curr_date.month)
-        lastweek = month[-1]
-        monday = lastweek[0] - timedelta(days=14)
-        return monday
+        year=curr_date.year
+        month=curr_date.month
+        day=calendar.monthrange(year,month)[1]
+        return datetime(year,month,day).date()
 
     def get_xaxis(self,length,num_years):
         last_month = num_years * 12
@@ -42,7 +43,7 @@ class Helper():
         mth = last_month - 1
         ct = 1
         for i in range(length - 2, -1, -1):
-            if ct == 21:
+            if ct == 30:
                 x_axis[i] = mth
                 mth -= 1
                 ct = 0
@@ -66,6 +67,10 @@ class Helper():
             if temp_date >= start_date and temp_date <= expiry_date:
                 valid_data.append(date_object)
         return valid_data
+
+    def get_outright(self,o_r):
+        contracts=dict(outright_choices)
+        return contracts[o_r].lower()
 
 class IndexView(generic.ListView):
     template_name = 'Outrights/index.html'
@@ -103,13 +108,33 @@ class OutrightsView(generic.TemplateView):
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
+        not_null_outrights=[]
         market=request.POST["market"]
         for o_r in outrights:
             if o_r!=' ':
+                not_null_outrights.append(self.helper.get_expiry(self.helper.get_day(o_r)))
                 y_axis.append(self.get_data_for_outright(num_years,o_r,market))
                 legend.append(o_r.upper())
-        x_axis_len=max([len(i) for i in y_axis])
-        x_axis = self.helper.get_xaxis(x_axis_len, num_years)
+
+        x_axis_len=(int)(num_years*366)
+        zoom=[]
+        for i in range(len(y_axis)):
+            if len(y_axis[i])<x_axis_len and not_null_outrights[i]<=datetime.now().date():
+                zoom.append(x_axis_len-len(y_axis[i]))
+                y_axis[i]=['null' for i in range(x_axis_len-len(y_axis[i]))]+y_axis[i]
+            elif len(y_axis[i])<x_axis_len and not_null_outrights[i]>datetime.now().date():
+                future_days=(not_null_outrights[i]-datetime.now().date()).days
+                if future_days>x_axis_len:
+                    y_axis[i]=['null' for i in range(x_axis_len)]
+                    continue
+                y_axis[i]=y_axis[i]+['null' for i in range(future_days)]
+                zoom.append(x_axis_len-len(y_axis[i]))
+                y_axis[i] = ['null' for i in range(x_axis_len-len(y_axis[i]))]+y_axis[i]
+        zoom=[i for i in zoom if i>0]
+        if len(zoom)>0:
+            starting=min(zoom)
+            y_axis=[i[starting:] for i in y_axis]
+        x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
 
         return render(request, 'Outrights/ui_outrights.html',
                       {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post','admin':check_admin})
@@ -121,6 +146,8 @@ class OutrightsView(generic.TemplateView):
         for object in valid_data:
             if getattr(object, outright):
                 y_axis.append(getattr(object, outright))
+            else:
+                y_axis.append('null')
         return y_axis
     def CheckNull(self,l):
         for i in l:
@@ -151,13 +178,29 @@ class SpreadsView(generic.TemplateView):
         legend = []
         y_axis = []
         market = request.POST["market"]
+        not_null_outrights = []
         for i in range(0,8,2):
             if outrights[i] != ' ' and outrights[i+1] != ' ':
+                not_null_outrights.append(min(self.helper.get_expiry(self.helper.get_day(outrights[i])),self.helper.get_expiry(self.helper.get_day(outrights[i+1]))))
                 y_axis.append(self.get_data_for_spread(num_years, outrights[i], outrights[i+1],market))
                 legend.append(outrights[i].upper() + "-" + outrights[i+1].upper())
-        x_axis_len = max([len(i) for i in y_axis])
-        x_axis = self.helper.get_xaxis(x_axis_len, num_years)
+        x_axis_len = (int)(num_years * 366)
 
+        zoom = []
+        for i in range(len(y_axis)):
+            if len(y_axis[i]) < x_axis_len and not_null_outrights[i] <= datetime.now().date():
+                zoom.append(x_axis_len - len(y_axis[i]))
+                y_axis[i] = ['null' for i in range(x_axis_len - len(y_axis[i]))] + y_axis[i]
+            elif len(y_axis[i]) < x_axis_len and not_null_outrights[i] > datetime.now().date():
+                future_days = (not_null_outrights[i] - datetime.now().date()).days
+                y_axis[i] = y_axis[i] + ['null' for i in range(future_days)]
+                zoom.append(x_axis_len - len(y_axis[i]))
+                y_axis[i] = ['null' for i in range(x_axis_len - len(y_axis[i]))] + y_axis[i]
+        zoom = [i for i in zoom if i > 0]
+        if len(zoom) > 0:
+            starting = min(zoom)
+            y_axis = [i[starting:] for i in y_axis]
+        x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
         return render(request, 'Outrights/ui_spreads.html',
                       {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post','admin':check_admin})
 
@@ -168,6 +211,8 @@ class SpreadsView(generic.TemplateView):
         for object in valid_data:
             if getattr(object, outright1) and getattr(object,outright2):
                 y_axis.append(getattr(object, outright1)-getattr(object,outright2))
+            else:
+                y_axis.append('null')
         return y_axis
 
     def CheckNull(self,l):
@@ -200,13 +245,30 @@ class FlysView(generic.TemplateView):
         legend = []
         y_axis = []
         market = request.POST["market"]
+        not_null_outrights = []
         for i in range(0,12,3):
             if outrights[i] != ' ' and outrights[i+1] != ' ' and outrights[i+2] != ' ':
+                not_null_outrights.append(min(self.helper.get_expiry(self.helper.get_day(outrights[i])),\
+                                              self.helper.get_expiry(self.helper.get_day(outrights[i+1])),self.helper.get_expiry(self.helper.get_day(outrights[i+2]))))
                 y_axis.append(self.get_data_for_fly(num_years, outrights[i], outrights[i+1], outrights[i+2], market))
                 legend.append(outrights[i].upper() + "-" + outrights[i+1].upper() + "-" + outrights[i+2].upper())
-        x_axis_len = max([len(i) for i in y_axis])
-        x_axis = self.helper.get_xaxis(x_axis_len, num_years)
+        x_axis_len = (int)(num_years * 366)
 
+        zoom = []
+        for i in range(len(y_axis)):
+            if len(y_axis[i]) < x_axis_len and not_null_outrights[i] <= datetime.now().date():
+                zoom.append(x_axis_len - len(y_axis[i]))
+                y_axis[i] = ['null' for i in range(x_axis_len - len(y_axis[i]))] + y_axis[i]
+            elif len(y_axis[i]) < x_axis_len and not_null_outrights[i] > datetime.now().date():
+                future_days = (not_null_outrights[i] - datetime.now().date()).days
+                y_axis[i] = y_axis[i] + ['null' for i in range(future_days)]
+                zoom.append(x_axis_len - len(y_axis[i]))
+                y_axis[i] = ['null' for i in range(x_axis_len - len(y_axis[i]))] + y_axis[i]
+        zoom = [i for i in zoom if i > 0]
+        if len(zoom) > 0:
+            starting = min(zoom)
+            y_axis = [i[starting:] for i in y_axis]
+        x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
         return render(request, 'Outrights/ui_flys.html',
                       {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post','admin':check_admin})
 
@@ -217,6 +279,8 @@ class FlysView(generic.TemplateView):
         for object in valid_data:
             if getattr(object, outright1) and getattr(object,outright2) and getattr(object,outright3):
                 y_axis.append(getattr(object, outright1)-2*getattr(object,outright2)+getattr(object,outright3))
+            else:
+                y_axis.append('null')
         return y_axis
 
     def CheckNull(self,l):
@@ -249,9 +313,18 @@ class CustomsView(generic.TemplateView):
             outrights = [i for i in outrights if i != '']
             market = request.POST["market"]
             y_axis = [self.get_data_for_customs(num_years, outrights,market)]
-            x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
+            # x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
             legend = [''.join(outrights).upper()]
             check_admin = self.helper.isadmin(request)
+
+            x_axis_len=num_years*366
+            curr_date=self.get_data_for_customs(num_years, outrights,market,True)
+            exp_date=self.helper.get_expiry(curr_date)
+            if exp_date>datetime.now().date():
+                future_days = (exp_date - datetime.now().date()).days
+                y_axis[0] = y_axis[0] + ['null' for i in range(future_days)]
+            x_axis = self.helper.get_xaxis(len(y_axis[0]), num_years)
+
             return render(request, 'Outrights/ui_customs.html',
                           {'form': form, 'x_axis': x_axis, 'y_axis': y_axis, 'legend': legend,'method':'post','admin':check_admin})
         else:
@@ -265,12 +338,19 @@ class CustomsView(generic.TemplateView):
         match=re.match(pattern,expr)
         return [match.group(1),match.group(2),match.group(3)+match.group(4)]
 
-    def get_data_for_customs(self,num_years,outrights,market):
+    def get_data_for_customs(self,num_years,outrights,market,return_curr_date=False):
         outrights_names=[]
         for o_r in outrights:
             index=o_r.find(next(filter(str.isalpha, o_r)))
             outrights_names.append(o_r[index:])
+        contracts=dict(outright_choices)
+        for i in range(len(outrights_names)):
+            for k,v in contracts.items():
+                if v.lower()==outrights_names[i].lower():
+                    outrights_names[i]=k
         curr_date=min([self.helper.get_day(i) for i in outrights_names])
+        if return_curr_date:
+            return curr_date
         valid_data=self.helper.get_valid_data(curr_date,num_years,market)
         y_axis=[]
         for object in valid_data:
@@ -282,9 +362,16 @@ class CustomsView(generic.TemplateView):
                     if i[1]=='':
                         i[1]=1
                     if i[0]=="+":
-                        y_axis_val+=getattr(object,i[2])*int(i[1])
+                        y_axis_val+=getattr(object,self.get_outright_val(i[2]))*int(i[1])
                     elif i[0]=="-":
-                        y_axis_val -= getattr(object, i[2]) * int(i[1])
+                        y_axis_val -= getattr(object,self.get_outright_val(i[2])) * int(i[1])
                 y_axis.append(y_axis_val)
+            else:
+                y_axis.append('null')
         return y_axis
+    def get_outright_val(self,o_r):
+        contracts = dict(outright_choices)
+        for k, v in contracts.items():
+            if v.lower() == o_r.lower():
+                return k
 
