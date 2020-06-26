@@ -3,7 +3,6 @@ from django.http import HttpResponseBadRequest, HttpResponse
 from django import forms
 from Outrights.models import *
 from Outrights.views import Helper
-import  re
 
 class UploadFileForm(forms.Form):
     market_choices = [('Euribor', 'Euribor'), ('Sterling', 'Sterling'), ('EuroSwiss', 'EuroSwiss'),\
@@ -30,11 +29,8 @@ def upload(request):
                     mapdict=['date']+["contract"+str(i) for i in range(180)]
                 )
 
-
-
                 return render(request,'AdminLogin/upload_form.html',context={'form':form,'admin':check_admin,'confirm':True})
             except Exception as e:
-                print(e)
                 return render(request,'AdminLogin/upload_form.html',context={'form':form,'admin':check_admin,'error':True})
         else:
             return HttpResponseBadRequest()

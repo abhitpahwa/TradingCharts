@@ -15,7 +15,7 @@ def logout(request):
 
 class Helper():
     def isadmin(self,request):
-        if request.user.get_username()=="abhit.pahwa":
+        if request.user.get_username()=="abhit.pahwa" or request.user.get_username()=="risk":
             return True
         return False
     def check_login(self,request):
