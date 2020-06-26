@@ -5,7 +5,9 @@
     <title>Flys</title>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js">
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {% include 'Outrights/reset.html' %}
+    {% include 'Outrights/dropdown.html' %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'Outrights/style.css' %}">
     <link href='https://fonts.googleapis.com/css?family=Arbutus Slab' rel='stylesheet'>
@@ -35,13 +37,13 @@
     {% csrf_token %}
     {{ form.market.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.market }}<br><br>
     {{ form.outright1.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright1 }}&nbsp;&nbsp;&nbsp;
-    {{ form.outright2 }}&nbsp;&nbsp;&nbsp;{{ form.outright3 }}<br><br>
+    {{ form.outright2 }}&nbsp;&nbsp;&nbsp;{{ form.outright3 }}&nbsp;&nbsp;&nbsp;{{ form.market1 }}<br><br>
     {{ form.outright4.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright4 }}&nbsp;&nbsp;&nbsp;
-    {{ form.outright5 }}&nbsp;&nbsp;&nbsp;{{ form.outright6 }}<br><br>
+    {{ form.outright5 }}&nbsp;&nbsp;&nbsp;{{ form.outright6 }}&nbsp;&nbsp;&nbsp;{{ form.market2 }}<br><br>
     {{ form.outright7.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright7 }}&nbsp;&nbsp;&nbsp;
-    {{ form.outright8 }}&nbsp;&nbsp;&nbsp;{{ form.outright9 }}<br><br>
+    {{ form.outright8 }}&nbsp;&nbsp;&nbsp;{{ form.outright9 }}&nbsp;&nbsp;&nbsp;{{ form.market3 }}<br><br>
     {{ form.outright10.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright10 }}&nbsp;&nbsp;&nbsp;
-    {{ form.outright11 }}&nbsp;&nbsp;&nbsp;{{ form.outright12 }}<br><br>
+    {{ form.outright11 }}&nbsp;&nbsp;&nbsp;{{ form.outright12 }}&nbsp;&nbsp;&nbsp;{{ form.market4 }}<br><br>
     {{ form.years.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.years }}<br><br>
     <input type="submit" value=" View Chart ">
     <input type="button" value=" Reset " name="clear" onclick="ClearForm(this.form);FixDpi();"><br><br>

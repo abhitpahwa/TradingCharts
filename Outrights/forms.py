@@ -24,6 +24,10 @@ class OutrightsForm(forms.Form):
     outright2 = forms.CharField(label="Choose Outright2", widget=forms.Select(choices=outright_choices))
     outright3 = forms.CharField(label="Choose Outright3", widget=forms.Select(choices=outright_choices))
     outright4 = forms.CharField(label="Choose Outright4", widget=forms.Select(choices=outright_choices))
+    market1 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market2 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market3 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market4 = forms.CharField(widget=forms.Select(choices=market_choices))
     years=forms.IntegerField(max_value=5,min_value=1,required=True)
 
 class SpreadsForm(forms.Form):
@@ -37,6 +41,10 @@ class SpreadsForm(forms.Form):
     outright7 = forms.CharField(label="Choose Spread4", widget=forms.Select(choices=outright_choices))
     outright8 = forms.CharField(widget=forms.Select(choices=outright_choices))
     years = forms.IntegerField(max_value=5, min_value=1,required=True)
+    market1 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market2 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market3 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market4 = forms.CharField(widget=forms.Select(choices=market_choices))
 
 class FlysForm(forms.Form):
     market = forms.CharField(label="Choose Market", widget=forms.Select(choices=market_choices))
@@ -53,6 +61,10 @@ class FlysForm(forms.Form):
     outright11 = forms.CharField(widget=forms.Select(choices=outright_choices))
     outright12 = forms.CharField(widget=forms.Select(choices=outright_choices))
     years = forms.IntegerField(max_value=5, min_value=1,required=True)
+    market1 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market2 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market3 = forms.CharField(widget=forms.Select(choices=market_choices))
+    market4 = forms.CharField(widget=forms.Select(choices=market_choices))
 
 class CustomForm(forms.Form):
     market = forms.CharField(label="Choose Market", widget=forms.Select(choices=market_choices))

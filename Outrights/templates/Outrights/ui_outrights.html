@@ -5,6 +5,8 @@
     <title>Outrights</title>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js">
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {% include 'Outrights/dropdown.html' %}
     {% include 'Outrights/reset.html' %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'Outrights/style.css' %}">
@@ -33,9 +35,12 @@
 {% endif %}
 <form action="" method="post">
     {% csrf_token %}
-    {% for field in form %}
-    {{ field.label_tag }}<label>&nbsp;&nbsp;&nbsp;</label>{{ field }}<br><br>
-    {% endfor %}
+    {{ form.market.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.market }}<br><br>
+    {{ form.outright1.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright1 }}&nbsp;&nbsp;&nbsp;{{ form.market1 }}<br><br>
+    {{ form.outright2.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright2 }}&nbsp;&nbsp;&nbsp;{{ form.market2 }}<br><br>
+    {{ form.outright3.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright3 }}&nbsp;&nbsp;&nbsp;{{ form.market3 }}<br><br>
+    {{ form.outright4.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.outright4 }}&nbsp;&nbsp;&nbsp;{{ form.market4 }}<br><br>
+    {{ form.years.label_tag }}&nbsp;&nbsp;&nbsp;{{ form.years }}<br><br>
     <input type="submit" value=" View Chart ">
     <input type="button" value=" Reset " name="clear" onclick="ClearForm(this.form);FixDpi();"><br><br>
     {% if error %}

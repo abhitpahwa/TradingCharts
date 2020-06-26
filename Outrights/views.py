@@ -98,8 +98,10 @@ class OutrightsView(generic.TemplateView):
         form = OutrightsForm(request.POST)
         check_admin = self.helper.isadmin(request)
         outrights=[]
+        markets=[]
         for i in range(4):
             outrights.append(request.POST["outright"+str(i+1)])
+            markets.append(request.POST["market"+str(i+1)])
         if self.CheckNull(outrights):
             return render(request, 'Outrights/ui_outrights.html',
                           {'form': form,'error':"Enter at least one outright",'admin':check_admin})
@@ -107,12 +109,11 @@ class OutrightsView(generic.TemplateView):
         legend = []
         y_axis = []
         not_null_outrights=[]
-        market=request.POST["market"]
-        for o_r in outrights:
+        for i,o_r in enumerate(outrights):
             if o_r!=' ':
                 not_null_outrights.append(self.helper.get_expiry(self.helper.get_day(o_r)))
-                y_axis.append(self.get_data_for_outright(num_years,o_r,market))
-                legend.append(self.helper.get_outright(o_r).upper())
+                y_axis.append(self.get_data_for_outright(num_years,o_r,markets[i]))
+                legend.append(markets[i]+":"+self.helper.get_outright(o_r).upper())
 
         x_axis_len=(int)(num_years*366)
         zoom=[]
@@ -167,21 +168,23 @@ class SpreadsView(generic.TemplateView):
         form = SpreadsForm(request.POST)
         check_admin = self.helper.isadmin(request)
         outrights = []
+        markets = []
         for i in range(8):
             outrights.append(request.POST["outright" + str(i + 1)])
+            if i%2==0:
+                markets.append(request.POST["market" + str(i//2 + 1)])
         if self.CheckNull(outrights):
             return render(request, 'Outrights/ui_spreads.html',
                           {'form': form,'error':"Enter at least one spread",'admin':check_admin})
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
-        market = request.POST["market"]
         not_null_outrights = []
         for i in range(0,8,2):
             if outrights[i] != ' ' and outrights[i+1] != ' ':
                 not_null_outrights.append(min(self.helper.get_expiry(self.helper.get_day(outrights[i])),self.helper.get_expiry(self.helper.get_day(outrights[i+1]))))
-                y_axis.append(self.get_data_for_spread(num_years, outrights[i], outrights[i+1],market))
-                legend.append(self.helper.get_outright(outrights[i]).upper() + "-" + self.helper.get_outright(outrights[i+1]).upper())
+                y_axis.append(self.get_data_for_spread(num_years, outrights[i], outrights[i+1],markets[i//2]))
+                legend.append(markets[i//2]+":"+self.helper.get_outright(outrights[i]).upper() + "-" + self.helper.get_outright(outrights[i+1]).upper())
         x_axis_len = (int)(num_years * 366)
 
         zoom = []
@@ -233,8 +236,11 @@ class FlysView(generic.TemplateView):
             return redirect("/")
         form = FlysForm(request.POST)
         outrights = []
+        markets = []
         for i in range(12):
             outrights.append(request.POST["outright" + str(i + 1)])
+            if i%3==0:
+                markets.append(request.POST["market" + str(i//3 + 1)])
         check_admin = self.helper.isadmin(request)
         if self.CheckNull(outrights):
             return render(request, 'Outrights/ui_flys.html',
@@ -242,14 +248,13 @@ class FlysView(generic.TemplateView):
         num_years = float(request.POST['years'])
         legend = []
         y_axis = []
-        market = request.POST["market"]
         not_null_outrights = []
         for i in range(0,12,3):
             if outrights[i] != ' ' and outrights[i+1] != ' ' and outrights[i+2] != ' ':
                 not_null_outrights.append(min(self.helper.get_expiry(self.helper.get_day(outrights[i])),\
                                               self.helper.get_expiry(self.helper.get_day(outrights[i+1])),self.helper.get_expiry(self.helper.get_day(outrights[i+2]))))
-                y_axis.append(self.get_data_for_fly(num_years, outrights[i], outrights[i+1], outrights[i+2], market))
-                legend.append(self.helper.get_outright(outrights[i]).upper() + "-" + self.helper.get_outright(outrights[i+1]).upper()+"-"+\
+                y_axis.append(self.get_data_for_fly(num_years, outrights[i], outrights[i+1], outrights[i+2], markets[i//3]))
+                legend.append(markets[i//2]+":"+self.helper.get_outright(outrights[i]).upper() + "-" + self.helper.get_outright(outrights[i+1]).upper()+"-"+\
                               self.helper.get_outright(outrights[i+2]).upper())
         x_axis_len = (int)(num_years * 366)
 
