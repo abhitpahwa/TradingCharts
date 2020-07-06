@@ -254,7 +254,7 @@ class FlysView(generic.TemplateView):
                 not_null_outrights.append(min(self.helper.get_expiry(self.helper.get_day(outrights[i])),\
                                               self.helper.get_expiry(self.helper.get_day(outrights[i+1])),self.helper.get_expiry(self.helper.get_day(outrights[i+2]))))
                 y_axis.append(self.get_data_for_fly(num_years, outrights[i], outrights[i+1], outrights[i+2], markets[i//3]))
-                legend.append(markets[i//2]+":"+self.helper.get_outright(outrights[i]).upper() + "-" + self.helper.get_outright(outrights[i+1]).upper()+"-"+\
+                legend.append(markets[i//3]+":"+self.helper.get_outright(outrights[i]).upper() + "-" + self.helper.get_outright(outrights[i+1]).upper()+"-"+\
                               self.helper.get_outright(outrights[i+2]).upper())
         x_axis_len = (int)(num_years * 366)
 
